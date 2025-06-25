@@ -1,139 +1,102 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'config/routes.dart';
-import 'config/constants.dart';
+import 'services/api_client.dart';
 import 'services/auth_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final isLoggedIn = await AuthService.isLoggedIn();
-  runApp(MyApp(isLoggedIn: isLoggedIn));
+
+  // Initialize API client
+  ApiClient().initialize();
+
+  // Initialize auth service
+  final authService = AuthService();
+  await authService.initializeAuth();
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final bool isLoggedIn;
-
-  const MyApp({super.key, required this.isLoggedIn});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'YnovNetwork',
-      theme: ThemeData(
-        primaryColor: AppColors.primary,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primary,
-          primary: AppColors.primary,
-          secondary: AppColors.accent, // Used for FAB, active elements
-          surface: AppColors.surface, // Card backgrounds, dialogs
-          error: AppColors.error,
-          onPrimary: AppColors.textLight, // Text/icons on primary color
-          onSecondary: AppColors.textLight, // Text/icons on secondary color
-          onSurface: AppColors.textDark, // Text/icons on surface color
-          onError: AppColors.textLight, // Text/icons on error color
-          brightness: Brightness.light, // Assuming a light theme
-        ),
-        scaffoldBackgroundColor: AppColors.background,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.textLight, // For title and icons in AppBar
-          elevation: 1.0, // Subtle shadow
-          titleTextStyle: TextStyle(
-            fontSize: 20.0,
-            fontWeight: FontWeight.w600, // Semi-bold
-            color: AppColors.textLight,
+    return MultiProvider(
+      providers: [Provider<AuthService>(create: (_) => AuthService())],
+      child: MaterialApp(
+        title: 'Yallaa - يلا',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFFE74C3C), // Moroccan Red
+            brightness: Brightness.light,
+            primary: const Color(0xFFE74C3C), // Moroccan Red
+            secondary: const Color(0xFFF39C12), // Moroccan Gold/Orange
+            surface: const Color(0xFFFAFAFA),
+            onPrimary: Colors.white,
+            onSecondary: Colors.white,
           ),
-        ),
-        textTheme: const TextTheme(
-          headlineSmall: TextStyle(
-            fontSize: 24.0,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textDark,
+          useMaterial3: true,
+          scaffoldBackgroundColor: const Color(0xFFF8F9FA),
+          appBarTheme: const AppBarTheme(
+            centerTitle: false,
+            elevation: 0,
+            backgroundColor: Colors.white,
+            foregroundColor: Color(0xFF2C3E50),
+            surfaceTintColor: Colors.transparent,
           ),
-          titleLarge: TextStyle(
-            fontSize: 20.0,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textDark,
-          ), // For card titles, screen titles
-          bodyLarge: TextStyle(
-            fontSize: 16.0,
-            color: AppColors.textDark,
-          ), // Default body text
-          bodyMedium: TextStyle(
-            fontSize: 14.0,
-            color: AppColors.textMedium,
-          ), // Secondary text
-          labelLarge: TextStyle(
-            fontSize: 16.0,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textLight,
-          ), // For button text
-          bodySmall: TextStyle(
-            fontSize: 12.0,
-            color: AppColors.textHint,
-          ), // Hint text, captions
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: AppColors.surface,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
-            borderSide: const BorderSide(color: AppColors.border),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
-            borderSide: const BorderSide(color: AppColors.border),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
-            borderSide: const BorderSide(color: AppColors.primary, width: 2.0),
-          ),
-          hintStyle: const TextStyle(color: AppColors.textHint),
-          labelStyle: const TextStyle(color: AppColors.textMedium),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.textLight,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24.0,
-              vertical: 12.0,
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              backgroundColor: const Color(0xFFE74C3C),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-            textStyle: const TextStyle(
-              fontSize: 16.0,
-              fontWeight: FontWeight.w600,
-            ),
+          ),
+          cardTheme: CardThemeData(
+            elevation: 1,
+            shadowColor: Colors.black.withOpacity(0.1),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
+              borderRadius: BorderRadius.circular(16),
             ),
+            color: Colors.white,
           ),
-        ),
-        textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(
-            foregroundColor: AppColors.primary,
-            textStyle: const TextStyle(
-              fontSize: 14.0,
+          bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+            backgroundColor: Colors.white,
+            selectedItemColor: Color(0xFFE74C3C),
+            unselectedItemColor: Color(0xFF7F8C8D),
+            elevation: 8,
+            type: BottomNavigationBarType.fixed,
+          ),
+          textTheme: const TextTheme(
+            headlineLarge: TextStyle(
+              color: Color(0xFF2C3E50),
+              fontWeight: FontWeight.bold,
+            ),
+            headlineMedium: TextStyle(
+              color: Color(0xFF2C3E50),
               fontWeight: FontWeight.w600,
             ),
+            bodyLarge: TextStyle(color: Color(0xFF34495E)),
+            bodyMedium: TextStyle(color: Color(0xFF7F8C8D)),
+          ),
+          inputDecorationTheme: InputDecorationTheme(
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            filled: true,
+            fillColor: Colors.grey[50],
           ),
         ),
-        cardTheme: CardThemeData(
-          // Changed from CardTheme to CardThemeData
-          elevation: 2.0,
-          margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-            side: const BorderSide(color: AppColors.border, width: 0.5),
-          ),
-          color: AppColors.surface,
-        ),
-        floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: AppColors.accent,
-          foregroundColor: AppColors.textLight,
-        ), // useMaterial3: true, // Consider enabling Material 3 for a more modern look if your Flutter version supports it well
+        initialRoute: '/login',
+        onGenerateRoute: AppRoutes.generateRoute,
       ),
-      initialRoute: isLoggedIn ? '/main' : '/login',
-      routes: appRoutes,
     );
   }
 }
