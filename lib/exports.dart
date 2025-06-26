@@ -18,6 +18,7 @@ export 'screens/yallaa_login_screen.dart';
 export 'screens/search_screen.dart';
 export 'screens/reservations_screen.dart';
 export 'screens/event_details_screen.dart';
+export 'screens/map_view_screen.dart';
 
 // Widgets
 export 'widgets/custom_button.dart';
