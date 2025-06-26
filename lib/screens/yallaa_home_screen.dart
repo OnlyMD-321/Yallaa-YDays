@@ -18,7 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _eventService = EventService();
   final _searchController = TextEditingController();
   String _selectedDistrict = 'Maarif';
-  
+
   List<Event> _featuredEvents = [];
   List<Event> _nearbyEvents = [];
   bool _isLoadingEvents = false;
@@ -448,10 +448,21 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildQuickActions() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          Expanded(
+            child: _buildQuickAction(
+              Icons.map,
+              const Color(0xFF27AE60),
+              'Map View',
+              () {
+                Navigator.pushNamed(context, '/map');
+              },
+            ),
+          ),
           Expanded(
             child: _buildQuickActionCard(
               'Mes Réservations',
@@ -470,6 +481,55 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildQuickAction(
+    IconData icon,
+    Color color,
+    String title,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF2C3E50),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -555,9 +615,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 16),
           if (_isLoadingEvents)
             const Center(
-              child: CircularProgressIndicator(
-                color: Color(0xFFE74C3C),
-              ),
+              child: CircularProgressIndicator(color: Color(0xFFE74C3C)),
             )
           else if (_featuredEvents.isEmpty)
             const Center(
@@ -583,7 +641,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => EventDetailsScreen(event: event),
+                            builder: (context) =>
+                                EventDetailsScreen(event: event),
                           ),
                         );
                       },
@@ -604,7 +663,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       final allEvents = await _eventService.getAllEvents();
-      
+
       setState(() {
         // Take first 5 events as featured
         _featuredEvents = allEvents.take(5).toList();
@@ -668,7 +727,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => EventDetailsScreen(event: event),
+                          builder: (context) =>
+                              EventDetailsScreen(event: event),
                         ),
                       );
                     },
