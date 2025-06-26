@@ -3,6 +3,7 @@ import '../screens/yallaa_login_screen.dart';
 import '../screens/search_screen.dart';
 import '../screens/reservations_screen.dart';
 import '../screens/yallaa_home_screen.dart';
+import '../screens/register_screen.dart';
 import '../screens/map_view_screen.dart';
 
 class AppRoutes {
@@ -10,6 +11,7 @@ class AppRoutes {
   static const String home = '/home';
   static const String search = '/search';
   static const String reservations = '/reservations';
+  static const String register = '/register';
   static const String mapView = '/map';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -22,6 +24,8 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const SearchScreen());
       case reservations:
         return MaterialPageRoute(builder: (_) => const ReservationsScreen());
+      case register:
+        return MaterialPageRoute(builder: (_) => const RegisterScreen());
       case mapView:
         return MaterialPageRoute(builder: (_) => const MapViewScreen());
       default:
