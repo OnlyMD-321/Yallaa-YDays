@@ -1,27 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
-import '../models/auth.dart';
 import '../services/auth_service.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _authService = AuthService();
 
   bool _isLoading = false;
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -33,10 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFE74C3C), // Moroccan Red
-              Color(0xFFF39C12), // Moroccan Gold
-            ],
+            colors: [Color(0xFFE74C3C), Color(0xFFF39C12)],
           ),
         ),
         child: SafeArea(
@@ -48,13 +48,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 40),
-
                   // Logo/Title Section
                   Container(
                     alignment: Alignment.center,
                     child: Column(
                       children: [
-                        // App Logo
                         Container(
                           width: 120,
                           height: 120,
@@ -67,52 +65,35 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           child: const Icon(
-                            Icons.location_on,
+                            Icons.person_add_alt_1,
                             size: 60,
                             color: Colors.white,
                           ),
                         ),
                         const SizedBox(height: 24),
-
-                        // App Name
                         const Text(
-                          'Yallaa',
+                          'Inscription',
                           style: TextStyle(
-                            fontSize: 36,
+                            fontSize: 32,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                             letterSpacing: 2,
                           ),
                         ),
                         const SizedBox(height: 8),
-
-                        // Arabic Text
                         const Text(
-                          'يلا',
+                          'Créer un nouveau compte',
                           style: TextStyle(
-                            fontSize: 28,
+                            fontSize: 18,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Subtitle
-                        Text(
-                          'Découvrez Casablanca',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white.withOpacity(0.9),
-                            fontWeight: FontWeight.w400,
                           ),
                         ),
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 60),
-
-                  // Login Form Card
+                  // Register Form Card
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -129,9 +110,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Welcome Text
                         const Text(
-                          'Bienvenue',
+                          'Bienvenue!',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -140,19 +120,25 @@ class _LoginScreenState extends State<LoginScreen> {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 8),
-
                         Text(
-                          'Connectez-vous à votre compte',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
+                          'Veuillez remplir les informations ci-dessous',
+                          style: TextStyle(fontSize: 14, color: Colors.grey),
                           textAlign: TextAlign.center,
                         ),
-
                         const SizedBox(height: 32),
-
-                        // Email Field
+                        _buildCustomTextField(
+                          label: 'Nom',
+                          hint: 'Entrez votre nom',
+                          controller: _nameController,
+                          prefixIcon: Icons.person_outline,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Nom requis';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 20),
                         _buildCustomTextField(
                           label: 'Email',
                           hint: 'Entrez votre email',
@@ -169,10 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             return null;
                           },
                         ),
-
                         const SizedBox(height: 20),
-
-                        // Password Field
                         _buildCustomTextField(
                           label: 'Mot de passe',
                           hint: 'Entrez votre mot de passe',
@@ -189,36 +172,24 @@ class _LoginScreenState extends State<LoginScreen> {
                             return null;
                           },
                         ),
-
-                        const SizedBox(height: 16),
-
-                        // Forgot Password
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Récupération du mot de passe bientôt disponible',
-                                  ),
-                                  backgroundColor: Color(0xFFE74C3C),
-                                ),
-                              );
-                            },
-                            child: const Text(
-                              'Mot de passe oublié?',
-                              style: TextStyle(
-                                color: Color(0xFFE74C3C),
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
+                        const SizedBox(height: 20),
+                        _buildCustomTextField(
+                          label: 'Confirmer le mot de passe',
+                          hint: 'Répétez votre mot de passe',
+                          controller: _confirmPasswordController,
+                          obscureText: true,
+                          prefixIcon: Icons.lock_outline,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Confirmation requise';
+                            }
+                            if (value != _passwordController.text) {
+                              return 'Les mots de passe ne correspondent pas';
+                            }
+                            return null;
+                          },
                         ),
-
                         const SizedBox(height: 24),
-
-                        // Login Button
                         Container(
                           height: 56,
                           decoration: BoxDecoration(
@@ -235,7 +206,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                           ),
                           child: ElevatedButton(
-                            onPressed: _isLoading ? null : _handleLogin,
+                            onPressed: _isLoading ? null : _handleRegister,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,
                               shadowColor: Colors.transparent,
@@ -255,7 +226,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   )
                                 : const Text(
-                                    'Se connecter',
+                                    "S'inscrire",
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w600,
@@ -264,85 +235,23 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                           ),
                         ),
-
-                        const SizedBox(height: 24),
-
-                        // Divider
-                        Row(
-                          children: [
-                            Expanded(child: Divider(color: Colors.grey[300])),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              child: Text(
-                                'OU',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                            Expanded(child: Divider(color: Colors.grey[300])),
-                          ],
-                        ),
-
-                        const SizedBox(height: 24),
-
-                        // Social Login Buttons
-                        _buildSocialButton(
-                          'Continuer avec Google',
-                          Icons.g_mobiledata,
-                          Colors.red,
-                          () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Connexion Google bientôt disponible',
-                                ),
-                                backgroundColor: Color(0xFFE74C3C),
-                              ),
-                            );
-                          },
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        _buildSocialButton(
-                          'Continuer avec Apple',
-                          Icons.apple,
-                          Colors.black,
-                          () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Connexion Apple bientôt disponible',
-                                ),
-                                backgroundColor: Color(0xFFE74C3C),
-                              ),
-                            );
-                          },
-                        ),
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 32),
-
-                  // Sign Up Link
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Pas encore de compte? ",
+                        'Déjà un compte? ',
                         style: TextStyle(color: Colors.white.withOpacity(0.9)),
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.pushReplacementNamed(context, '/register');
+                          Navigator.pushReplacementNamed(context, '/login');
                         },
                         child: const Text(
-                          'S\'inscrire',
+                          'Se connecter',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -352,52 +261,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 40),
-
-                  // Test Credentials Section (Development Only)
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.white.withOpacity(0.3)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          '🧪 Comptes de test disponibles:',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _buildTestCredential(
-                          'mohamed@example.com',
-                          '123456',
-                          'Mohamed Alami',
-                        ),
-                        _buildTestCredential(
-                          'fatima@example.com',
-                          'password',
-                          'Fatima Benali',
-                        ),
-                        _buildTestCredential(
-                          'youssef@example.com',
-                          'youssef123',
-                          'Youssef Tadili',
-                        ),
-                        _buildTestCredential(
-                          'admin@yallaa.ma',
-                          'admin123',
-                          'Admin Yallaa',
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -465,67 +329,24 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildSocialButton(
-    String text,
-    IconData icon,
-    Color iconColor,
-    VoidCallback onPressed,
-  ) {
-    return Container(
-      width: double.infinity,
-      height: 50,
-      child: OutlinedButton.icon(
-        onPressed: onPressed,
-        icon: Icon(icon, color: iconColor, size: 24),
-        label: Text(
-          text,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF2C3E50),
-          ),
-        ),
-        style: OutlinedButton.styleFrom(
-          side: BorderSide(color: Colors.grey[300]!),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          backgroundColor: Colors.white,
-        ),
-      ),
-    );
-  }
-
-  Future<void> _handleLogin() async {
+  Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-
     setState(() {
       _isLoading = true;
     });
-
     try {
-      final loginRequest = LoginRequest(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-      );
-
-      final response = await _authService.login(loginRequest);
-
-      if (response.success) {
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, '/home');
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(response.message ?? 'Échec de la connexion'),
-              backgroundColor: const Color(0xFFE74C3C),
-            ),
-          );
-        }
+      // TODO: Implement registration logic with AuthService
+      await Future.delayed(const Duration(seconds: 2));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Inscription réussie!'),
+            backgroundColor: Color(0xFFE74C3C),
+          ),
+        );
+        Navigator.pushReplacementNamed(context, '/login');
       }
     } catch (e) {
       if (mounted) {
@@ -543,58 +364,5 @@ class _LoginScreenState extends State<LoginScreen> {
         });
       }
     }
-  }
-
-  Widget _buildTestCredential(String email, String password, String name) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: GestureDetector(
-        onTap: () {
-          _emailController.text = email;
-          _passwordController.text = password;
-        },
-        child: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                      ),
-                    ),
-                    Text(
-                      email,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                'Appuyer pour utiliser',
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
-                  fontSize: 10,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }
